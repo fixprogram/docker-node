@@ -1,4 +1,4 @@
-FROM node:21.7.3-alpine3.20
+FROM node:20.9.0
 
 WORKDIR /app
 
@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD [ "node", "index.js" ]
+CMD [ "npm", "run", "start" ]

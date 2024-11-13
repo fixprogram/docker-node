@@ -1,3 +1,5 @@
 import { createServer } from "node:http";
 
-createServer((req, res) => res.end("Hello world!")).listen(3000, () => console.log("Listening to 3000 port"));
+const PORT = process.env.PORT ?? 3000;
+
+createServer((req, res) => res.end("Hello world!")).listen(PORT, () => console.log(`Listening to ${PORT} port`));

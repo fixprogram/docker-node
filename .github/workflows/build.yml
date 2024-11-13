@@ -22,13 +22,39 @@ jobs:
         run: npm ci
 
   docker-build-push:
+    name: Deploy to Heroku
     runs-on: ubuntu-latest
     needs: build
 
     steps:
       - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.13.15
         with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "docker-node"
-          heroku_email: "ddavydov.dev@gmail.com"
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20.9.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Docker Image
+        run: docker-compose up --build -d
+
+      - name: Log in to the Heroku Container Registry
+        run: heroku container:login
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Tag and Push Docker Image to Heroku
+        run: |
+          docker tag docker-node:1.0 registry.heroku.com/docker-node/web
+          docker push registry.heroku.com/docker-node/web
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Release the Image to Heroku
+        run: heroku container:release web -a docker-node
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
